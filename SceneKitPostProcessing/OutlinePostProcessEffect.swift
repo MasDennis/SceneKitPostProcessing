@@ -179,7 +179,7 @@ class OutlinePostProcessEffect: NSObject {
         renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0, 0, 0, 1)
         renderPassDescriptor.colorAttachments[0].storeAction = .store
         
-        // -- First, do a full render. Ideally I would be able to use the framebuffer that was
+        // -- First, do a full render. Ideally I would be able to use a copy of nextDrawable().texture that was
         //    rendered by SceneKit in the composite fragment shader. However, this doesn't seem
         //    to be possible. Can't blit it into another texture because that isn't allowed.
         
