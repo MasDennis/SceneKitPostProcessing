@@ -21,8 +21,9 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         super.viewDidLoad()
         sceneView.delegate = self
         sceneView.showsStatistics = true
-        let scene = SCNScene(named: "art.scnassets/ship.scn")!
-        planeContainer = scene.rootNode.childNode(withName: "ShipContainer", recursively: true)
+//        let scene = SCNScene(named: "art.scnassets/ship.scn")!
+        let scene = SCNScene(named: "art.scnassets/Fokker/Fokker.scn")!
+        planeContainer = scene.rootNode.childNode(withName: "NodeContainer", recursively: true)
         planeContainer.removeFromParentNode()
     }
     
@@ -53,6 +54,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     }
     
     func renderer(_ renderer: SCNSceneRenderer, didRenderScene scene: SCNScene, atTime time: TimeInterval) {
+        guard let _ = planeContainer.parent else { return }
         postProcessEffect.render(mainRenderer: renderer, scene: scene, atTime: time)
     }
 }

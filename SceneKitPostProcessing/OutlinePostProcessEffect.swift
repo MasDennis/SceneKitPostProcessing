@@ -135,10 +135,10 @@ class OutlinePostProcessEffect: NSObject {
         
         // -- The material for the extrusion pass. The geometry is extruded along
         //    its normal. The extruded mesh then gets a single constant color (blue).
-        //    Ideally I'd set the lighting model to .constant but this causes a crash.
-        //    So I'm changing the pixel color in the .fragment shader modifier instead.
         extrusionMaterial = SCNMaterial()
         extrusionMaterial.cullMode = .front
+        extrusionMaterial.lightingModel = .constant
+        extrusionMaterial.diffuse.contents = UIColor.blue
         
         let extrusionGeometry = """
         float3 modelNormal = normalize(_geometry.normal);
@@ -149,24 +149,13 @@ class OutlinePostProcessEffect: NSObject {
         _geometry.normal = (scn_node.normalTransform * float4(in.normal, 1)).xyz;
         """
         
-        let extrusionFragment = """
-        _output.color.rgb = vec3(0.0, 0.0, 1.0);
-        """
-        
         extrusionMaterial.shaderModifiers = [
-            SCNShaderModifierEntryPoint.geometry: extrusionGeometry,
-            SCNShaderModifierEntryPoint.fragment: extrusionFragment
+            SCNShaderModifierEntryPoint.geometry: extrusionGeometry
         ]
         
         maskMaterial = SCNMaterial()
-        
-        let maskFragment = """
-        _output.color.rgb = vec3(1.0, 0.0, 0.0);
-        """
-        
-        maskMaterial.shaderModifiers = [
-            SCNShaderModifierEntryPoint.fragment: maskFragment
-        ]
+        maskMaterial.lightingModel = .constant
+        maskMaterial.diffuse.contents = UIColor.red
     }
     
     func render(mainRenderer: SCNSceneRenderer, scene: SCNScene, atTime time: TimeInterval) {
@@ -180,7 +169,7 @@ class OutlinePostProcessEffect: NSObject {
         renderPassDescriptor.colorAttachments[0].storeAction = .store
         
         // -- First, do a full render. Ideally I would be able to use a copy of nextDrawable().texture that was
-        //    rendered by SceneKit in the composite fragment shader. However, this doesn't seem
+        //    rendered by SceneKit in the compositing fragment shader. However, this doesn't seem
         //    to be possible. Can't blit it into another texture because that isn't allowed.
         
         currentPass = .fullRender
@@ -227,22 +216,29 @@ extension OutlinePostProcessEffect: SCNSceneRendererDelegate {
     func renderer(_ renderer: SCNSceneRenderer,
                   updateAtTime time: TimeInterval) {
         guard
-            let planeMesh = renderer.scene?.rootNode.childNode(withName: "ShipMesh", recursively: true),
-            let shadowPlane = renderer.scene?.rootNode.childNode(withName: "ShadowPlane", recursively: true)
+            let planeMesh = renderer.scene?.rootNode.childNode(withName: "NodeMesh", recursively: true),
+            let shadowPlane = renderer.scene?.rootNode.childNode(withName: "ShadowPlane", recursively: true),
+            let light = renderer.scene?.rootNode.childNode(withName: "DirectionalLight", recursively: true)?.light
             else { return }
         
         switch currentPass {
         case .outlineMask:
+            light.shadowMode = .forward
+            light.castsShadow = false
             planeMesh.isHidden = false
             shadowPlane.isHidden = true
             planeMesh.geometry?.materials = [ maskMaterial ]
         case .outlineExtrusion:
+            light.shadowMode = .forward
+            light.castsShadow = false
             planeMesh.isHidden = false
             planeMesh.castsShadow = false
             shadowPlane.isHidden = true
             planeMesh.geometry?.materials = [ extrusionMaterial ]
             renderer.pointOfView?.addChildNode(backgroundCube)
         case .fullRender:
+            light.shadowMode = .deferred
+            light.castsShadow = true
             planeMesh.isHidden = false
             planeMesh.castsShadow = true
             shadowPlane.isHidden = false

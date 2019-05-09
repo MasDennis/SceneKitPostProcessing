@@ -1,5 +1,6 @@
 #include <metal_stdlib>
 using namespace metal;
+#include <SceneKit/scn_metal>
 
 struct QuadVertex
 {
@@ -41,4 +42,33 @@ fragment float4 quad_fragment(QuadVertexOut inVertex [[stage_in]],
     }
     
     return outColor;
+}
+
+
+struct VertexIn {
+    float4 position [[attribute(SCNVertexSemanticPosition)]];
+    float2 texCoord0 [[attribute(SCNVertexSemanticTexcoord0)]];
+};
+
+struct VertexOut {
+    float4 position [[position]];
+    float2 uv;
+};
+
+constexpr sampler s = sampler(coord::normalized,
+                              r_address::clamp_to_edge,
+                              t_address::repeat,
+                              filter::linear);
+
+vertex VertexOut hudVertex(VertexIn in [[stage_in]]) {
+    VertexOut vert;
+    vert.position = float4(in.position.xyz, 1.0);
+    vert.uv = in.texCoord0;
+    
+    return vert;
+}
+
+fragment half4 hudFragment(VertexOut in [[stage_in]],
+                           texture2d<float, access::sample> diffuseTexture [[texture(0)]]) {
+    return half4(diffuseTexture.sample(s, in.uv));
 }

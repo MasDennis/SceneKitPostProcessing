@@ -62,11 +62,11 @@
 			children = (
 				EF8B4DAB2280B9690051EE99 /* AppDelegate.swift */,
 				EF8B4DAD2280B9690051EE99 /* art.scnassets */,
-				EF8B4DAF2280B9690051EE99 /* ViewController.swift */,
 				EF8B4DB12280B9690051EE99 /* Main.storyboard */,
 				EF8B4DB42280B96B0051EE99 /* Assets.xcassets */,
 				EF8B4DB62280B96B0051EE99 /* LaunchScreen.storyboard */,
 				EF8B4DB92280B96B0051EE99 /* Info.plist */,
+				EF8B4DAF2280B9690051EE99 /* ViewController.swift */,
 				EFF3BEFB2280D57600B760AB /* OutlinePostProcessEffect.swift */,
 				EF4D52212281662D00F6B41F /* Shaders.metal */,
 			);
