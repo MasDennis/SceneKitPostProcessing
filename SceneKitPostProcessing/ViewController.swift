@@ -49,7 +49,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
      
         planeContainer.removeFromParentNode()
         node.addChildNode(planeContainer)
-        
+        postProcessEffect.nodeAdded(node)
         return node
     }
     

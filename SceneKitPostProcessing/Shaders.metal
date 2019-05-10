@@ -44,6 +44,15 @@ fragment float4 quad_fragment(QuadVertexOut inVertex [[stage_in]],
     return outColor;
 }
 
+fragment float4 quad_fragment_full(QuadVertexOut inVertex [[stage_in]],
+                                   float4 color0 [[color(0)]],
+                                   texture2d<float, access::write> texture1 [[texture(0)]],
+                                   constant float2 &viewportSize [[ buffer(0) ]])
+{
+    texture1.write(color0, uint2(inVertex.texCoords.x * viewportSize.x, inVertex.texCoords.y * viewportSize.y), 0);
+    
+    return color0;
+}
 
 struct VertexIn {
     float4 position [[attribute(SCNVertexSemanticPosition)]];
